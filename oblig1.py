@@ -27,7 +27,7 @@ class Segment:
 		self.nx = -self.dy/self.dl
 		self.ny = self.dx/self.dl
 		self.n = [self.nx, self.ny]
-		self.dpdn = self.nx + self.ny
+		self.dpdn = dot(self.n,[1,0])
 		self.lhs = zeros(num_segments)
 		self.rhs = 0
 		self.r1 = []
@@ -62,7 +62,9 @@ for i in range(num_segments):
 B = [segments[i].rhs for i in range(num_segments)]
 phi = linalg.solve(A,B)
 
-print -(a*a*x[10])/(x[10]**2 + y[10]**2)
-print phi[10]
-
+#print -(a*a*segments[526].midpoint[0])/(segments[526].midpoint[0]**2 + segments[526].midpoint[1]**2)
+#print phi[526]
+print phi
+print segments[10].nx
+print segments[10].dpdn
 
