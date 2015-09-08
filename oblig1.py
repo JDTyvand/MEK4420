@@ -1,70 +1,141 @@
 from numpy import *
 from matplotlib.pyplot import *
-
-a = 1
-b = 1
-num_segments = 100
-num_points = num_segments+1
-rad_pos = linspace(0, 2*pi, num_points)
-x = a*cos(rad_pos)
-y = b*sin(rad_pos)
-A_array = []
-B_array = []
-
-for i in range(num_segments):
-	A_array.append(array([x[i], y[i]]))
-	B_array.append(array([x[i+1], y[i+1]]))
-
-class Segment:
-
-	def __init__(self, A, B):
-		self.A = A
-		self.B = B
-		self.midpoint = (self.A+self.B)/2
-		self.dx = self.B[0] - self.A[0]
-		self.dy = self.B[1] - self.A[1]
-		self.dl = linalg.norm(self.B - self.A)
-		self.nx = -self.dy/self.dl
-		self.ny = self.dx/self.dl
-		self.n = [self.nx, self.ny]
-		self.dpdn = dot(self.n,[1,0])
-		self.lhs = zeros(num_segments)
-		self.rhs = 0
-		self.r1 = []
-		self.r1_norm = zeros(num_segments)
-		self.r2 = []
-		self.r2_norm = zeros(num_segments)
-
-	def calculate(self, segments):
-		for i in range(len(segments)):
-			if segments[i] is self:
-				self.lhs[i] = -pi
-				self.r1.append(0)
-				self.r2.append(0)
-			else:
-				self.r1.append(segments[i].A - self.midpoint)
-				self.r2.append(segments[i].B - self.midpoint)
-				self.r1_norm[i] = linalg.norm(self.r1[i])
-				self.r2_norm[i] = linalg.norm(self.r2[i])
-				self.lhs[i] = -arccos(dot(self.r1[i],self.r2[i])/(self.r1_norm[i]*self.r2_norm[i]))
-				self.rhs = self.rhs + segments[i].dpdn*((log(self.r1_norm[i]) +log(self.r2_norm[i]))*segments[i].dl)/2
+import time
+import warnings
+warnings.filterwarnings('ignore')
+set_printoptions(precision=4, suppress=True)
 
 
-segments = [Segment(A_array[i],B_array[i]) for i in range(num_segments)]
 
-for i in range(num_segments):
-	segments[i].calculate(segments)
+def ellipse(a,b):
 
-A = zeros((num_segments,num_segments))
-for i in range(num_segments):
-	A[i] = segments[i].lhs
+	def calculate(i):
+		r1 = linalg.norm(array([x[:-1],y[:-1]]).T - array([midpointx[i],midpointy[i]]),axis=1)
+		r2 = linalg.norm(array([x[1:],y[1:]]).T - array([midpointx[i],midpointy[i]]),axis=1)
+		theta = -arccos((dl**2 - r2**2 - r1**2)/(-2*r2*r1))
+		rhs11 = sum(nx*(log(r1)+log(r2))*0.5*dl)
+		rhs22 = sum(ny*(log(r1)+log(r2))*0.5*dl)
+		rhs66 = sum(n66*(log(r1)+log(r2))*0.5*dl)
+		A[i] = theta
+		B11[i] = rhs11
+		B22[i] = rhs22
+		B66[i] = rhs66
 
-B = [segments[i].rhs for i in range(num_segments)]
-phi = linalg.solve(A,B)
+	start = time.time()
+	a = a
+	b = b
+	num_segments = 2000
+	num_points = num_segments+1
+	rad_pos = linspace(0, 2*pi, num_points)
+	x = a*cos(rad_pos)
+	y = b*sin(rad_pos)
+	midpointx = (x[1:] + x[:-1])/2
+	midpointy = (y[1:] + y[:-1])/2
+	dl = linalg.norm(array([x[1:],y[1:]]) - array([x[:-1],y[:-1]]), axis=0)
+	nx = -(y[1:] - y[:-1])/dl
+	ny = (x[1:] - x[:-1])/dl
+	r = array([midpointx,midpointy]).T
+	n = array([nx, ny]).T
+	n66 = cross(r,n)
 
-#print -(a*a*segments[526].midpoint[0])/(segments[526].midpoint[0]**2 + segments[526].midpoint[1]**2)
-#print phi[526]
-print phi
-print segments[10].nx
-print segments[10].dpdn
+	A = zeros((num_segments,num_segments))
+	B11 = zeros(num_segments)
+	B22 = zeros(num_segments)
+	B66 = zeros(num_segments)
 
+	for i in range(num_segments):
+		calculate(i)
+
+	fill_diagonal(A,-pi)
+
+	phi11 = linalg.solve(A,B11)
+	phi22 = linalg.solve(A,B22)
+	phi66 = linalg.solve(A,B66)
+
+	m11 = sum(phi11*nx*dl)
+	m22 = sum(phi22*ny*dl)
+	m66 = sum(phi66*n66*dl)
+
+	M = zeros((3,3))
+	M[0][0] = m11
+	M[1][1] = m22
+	M[2][2] = m66
+
+	print M
+
+	end = time.time()
+	print ('Calculated in %4f seconds' % (end-start))
+
+def square(a):
+
+	def calculate(i):
+		r1 = linalg.norm(array([x[:-1],y[:-1]]).T - array([midpointx[i],midpointy[i]]),axis=1)
+		r2 = linalg.norm(array([x[1:],y[1:]]).T - array([midpointx[i],midpointy[i]]),axis=1)
+		theta = -arccos((dl**2 - r2**2 - r1**2)/(-2*r2*r1))
+		rhs11 = sum(nx*(log(r1)+log(r2))*0.5*dl)
+		rhs22 = sum(ny*(log(r1)+log(r2))*0.5*dl)
+		rhs66 = sum(n66*(log(r1)+log(r2))*0.5*dl)
+		A[i] = theta
+		B11[i] = rhs11
+		B22[i] = rhs22
+		B66[i] = rhs66
+
+	start = time.time()
+	d1 = -a
+	d2 = a
+	N = 2000
+	Np = int(N/4.)
+	x = zeros(N+1)
+	y = zeros(N+1)
+	for i in range(Np+1):
+		x[i] = d1 + (d2-d1)/2*(1-cos(pi/(Np)*i))
+		y[i] = -a
+		x[i+Np] = a
+		y[i+Np] = d1 + (d2-d1)/2*(1-cos(pi/(Np)*i))
+		x[i+2*Np] = -(d1 + (d2-d1)/2*(1-cos(pi/(Np)*i)))
+		y[i+2*Np] = a
+		x[i+3*Np] = -a
+		y[i+3*Np] = -(d1 + (d2-d1)/2*(1-cos(pi/(Np)*i)))
+
+	midpointx = (x[1:] + x[:-1])/2
+	midpointy = (y[1:] + y[:-1])/2
+
+	dl = linalg.norm(array([x[1:],y[1:]]) - array([x[:-1],y[:-1]]), axis=0)
+	nx = -(y[1:] - y[:-1])/dl
+	ny = (x[1:] - x[:-1])/dl
+	r = array([midpointx,midpointy]).T
+	n = array([nx, ny]).T
+	n66 = cross(r,n)
+
+	A = zeros((N,N))
+	B11 = zeros(N)
+	B22 = zeros(N)
+	B66 = zeros(N)
+
+	for i in range(N):
+		calculate(i)
+
+	A[isnan(A)] = 0
+
+	phi11 = linalg.solve(A,B11)
+	phi22 = linalg.solve(A,B22)
+	phi66 = linalg.solve(A,B66)
+
+	m11 = sum(phi11*nx*dl)
+	m22 = sum(phi22*ny*dl)
+	m66 = sum(phi66*n66*dl)
+
+	M = zeros((3,3))
+	M[0][0] = m11
+	M[1][1] = m22
+	M[2][2] = m66
+
+	print M
+
+	end = time.time()
+	print ('Calculated in %4f seconds' % (end-start))
+
+if __name__ == '__main__':
+    ellipse(2,2)
+    ellipse(2,1)
+    square(1)
