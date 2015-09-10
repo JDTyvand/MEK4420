@@ -17,7 +17,7 @@
 
 
 \date{\today}
-\title{Mandatory Assignment 2}
+\title{Mandatory Assignment 1}
 \author{Jørgen D. Tyvand}
 
 \begin{document}
@@ -25,5 +25,15 @@
 \newpage
 
 \section*{Case:}
-
+We are to "calculate the velocity potential and the added mass forces, for a circle, ellipse, a square and a rectangle, moving laterally, and with rotation.". 
+\section*{Deriving the set of equations:}
+We start from the integral equation for a body with boundary C. We want to calculate the potential along the body, so the source point as well as the field points are located on the surface C. The integral equation in 2D for a source point on the surface is given as\\
+\\
+$-\pi\phi(\vec{x}) + \int\limits_C\phi(\vec{\xi})\, \pdi{}{n_\vec{x}}lnr\, \mathrm{d}l_{\vec{x}} = \int\limits_Clnr\, \pdi{\phi}{n_\vec{x}}\, \mathrm{d}l_{\vec{x}}$\\
+\\
+Since we want to discretize the problem for N segments along the surface, the integrals can be assumed to be sums over the integrals, with $\phi(\vec{\xi})$ constant and $\pdi{\phi}{n_\vec{x}}$ known on each segment :\\
+\\
+$-\pi\phi(\vec{x}) + \int\limits_C\phi(\vec{\xi})\, \pdi{}{n_\vec{x}}lnr\, \mathrm{d}l_{\vec{x}} = \int\limits_Clnr\, \pdi{\phi}{n_\vec{x}}\, \mathrm{d}l_{\vec{x}}$\\
+\section*{The numerical program:}
+\section*{A summary of the results:}
  \end{document}
