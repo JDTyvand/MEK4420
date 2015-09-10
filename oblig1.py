@@ -66,6 +66,12 @@ def ellipse(a,b):
 	end = time.time()
 	print ('Calculated in %4f seconds' % (end-start))
 
+	if a == b:
+		exact = -(a**2*midpointx)/(midpointx**2 + midpointy**2)
+		plot(exact, 'b-')
+		plot(phi11, 'r-')
+		show()
+
 def square(a):
 
 	def calculate(i):
@@ -137,6 +143,6 @@ def square(a):
 	print ('Calculated in %4f seconds' % (end-start))
 
 if __name__ == '__main__':
-    ellipse(2,2)
+    ellipse(1,1)
     ellipse(2,1)
     square(1)
