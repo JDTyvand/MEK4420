@@ -25,19 +25,19 @@
 \newpage
 
 \section*{Case:}
-We are to "calculate the velocity potential and the added mass forces, for a circle, ellipse, a square and a rectangle, moving laterally, and with rotation.". 
+We are to "calculate the velocity potential and the added mass forces, for a circle, ellipse, a square and a rectangle, moving laterally, and with rotation.". We are also to "find the cross coupling added mass coefficients".
 \section*{Deriving the set of equations:}
-We start from the integral equation for a body with boundary C. We want to calculate the potential along the body, so the source point as well as the field points are located on the surface C. The integral equation in 2D for a source point on the surface can be written as\\
+We start from the integral equation for a body with boundary C. We want to calculate the potential along the body, so the source point $\vec{x}$ as well as the field points $\vec{\xi}$ are located on the surface C. The integral equation in 2D for a source point on the surface can be written as\\
 \\
 $-\pi\phi(\vec{x}) +\displaystyle\int\limits_C\phi(\vec{\xi})\, \pdi{}{n_\vec{\xi}}lnr\, \mathrm{d}l_{\vec{\xi}} = \int\limits_Clnr\, \pdi{\phi}{n_\vec{\xi}}\, \mathrm{d}l_{\vec{\xi}}$\\
 \\
-Since we want to discretize the problem for N segments along the surface, the integrals can be assumed to be sums over the integrals, with $\phi(\vec{\xi})$ constant and $\pdi{\phi}{n_\vec{x}}$ known on each segment :\\
+Since we want to discretize the problem along the surface, the integrals can be assumed to be sums over the segments, with $\phi(\vec{\xi})$ constant and $\pdi{\phi}{n_\vec{\xi}}$ known on each segment :\\
 \\
 $-\pi\phi(\vec{x}) +\displaystyle\sum_{n=1}^{N}\phi_n(\vec{\xi})\int\limits_{C_n}\pdi{}{n_\vec{\xi}}\, lnr\, \mathrm{d}l_{\vec{\xi}} = \sum_{n=1}^{N} \pdi{\phi_n}{n_\vec{\xi}}\int\limits_{C_n} lnr\, \mathrm{d}l_{\vec{\xi}}$\\
 \\
 The integral on the left hand side can be simplified by introducing the complex variable $z = r e^{i\theta} = x + iy$, and saying that $lnr = Re(lnz)$. We also have\\
 \\
-$\pdi{}{n_\vec{x}} = n_1\pdi{}{x} + n_2\pdi{}{y}, \tab$ giving\\
+$\pdi{}{n_\vec{\xi}} = n_1\pdi{}{x} + n_2\pdi{}{y}, \tab$ giving\\
 \\
 \\
 $\displaystyle\int\limits_{C_n}\pdi{}{n_\vec{\xi}}\, lnr\, \mathrm{d}l_{\vec{\xi}} = Re\displaystyle\int_A^B\left(n_1\pdi{}{x} + n_2\pdi{}{y}\right)lnz\, \mathrm{d}l_{\vec{\xi}}$\\
@@ -61,13 +61,13 @@ $Re(i\, lnz)\big|_0^1 = Re(i(lnr + i\theta)\big|_0^1 = -(\theta_B - \theta_A)$\\
 \newpage
 For the right hand integral, I have used a simple trapezoidal rule method, giving\\
 \\
-$\int\limits_{C_n} lnr\, \mathrm{d}l_{\vec{x}} = \frac{lnr_A + lnr_B}{2}dl$\\
+$\int\limits_{C_n} lnr\, \mathrm{d}l_{\vec{\xi}} = \frac{lnr_A + lnr_B}{2}dl$\\
 \\
 The final simplified equation can then be written as\\
 \\
 $-\pi\phi(\vec{x}) +\displaystyle\displaystyle\sum_{n=1}^{N}\phi_n(\vec{\xi})(-(\theta_{B_n} - \theta_{A_n})) = \displaystyle\displaystyle\sum_{n=1}^{N}\pdi{\phi_n}{n_\vec{\xi}}\frac{lnr_A + lnr_B}{2}dl$\\
 \\
-Since we compute the values of $\phi$at each segment using the value at other segments, this gives rise to a set of N+1 coupled equations, which we must solve as a matrix/vector problem.
+Since we compute the values of $\phi$ at each segment using the value at other segments, this gives rise to a set of coupled equations, which we must solve as a matrix/vector problem.
 \section*{The numerical program:}
 The complete code of the numerical program is listed at the end of this document. Comments on the functionality of the individual parts of the program is given in the code.\\
 
@@ -75,7 +75,7 @@ The process in the program is to create N+1 points along the geometry of the bod
 
 An empty N-by-N matrix is then created to hold the values of all the angles from the left hand side of the equation, as well as thre arrays holding the values for the trapeziodial integral in the three non-zero directions (1, 2 and 6). The program then runs a loop N times, each time calculating the distance from the current segment to each of the end points of all the other segments. This is then used to calculate the angle between the distance vectors, as well as the right hand side. These values are finally added to the matrix and the three arrays.\\
 
-For each case i have added corrections for NaN-values that may arrise, by setting the values on the diagonal to $-\pi$ and all other NaN-values to zero. FInally the program 
+For each case i have added corrections for NaN-values that may arrise, by setting the values on the diagonal to $-\pi$ and all other NaN-values to zero. FInally the program computes the values for $\phi$ at each segment, and the added mass coefficients are then computed using these values. The added mass coefficients are then printed in a 3-by-3 matrix with the three non-zero values on the diagonal (Though $m_{66}$ will be zero for the circle).
 
 
 \newpage
