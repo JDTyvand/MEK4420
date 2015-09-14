@@ -69,7 +69,7 @@ $-\pi\phi(\vec{x}) +\displaystyle\displaystyle\sum_{n=1}^{N}\phi_n(\vec{\xi})(-(
 \\
 Since we compute the values of $\phi$ at each segment using the value at other segments, this gives rise to a set of coupled equations, which we must solve as a matrix/vector problem.
 \section*{The numerical program:}
-The complete code of the numerical program is listed at the end of this document. Comments on the functionality of the individual parts of the program is given in the code.\\
+The complete code of the numerical program is listed at the end of this document. Comments on the functionality of the individual parts of the program is given in the code. THe formatting of the code is a bit wierd as the text editor compensated for line length in an unpredicted manner.\\
 
 The process in the program is to create N+1 points along the geometry of the body, where the first and last point will be the same. The midpoints of each segment are then defined to be the point petween each of the previously generated points, giving N midpoints (and segments). The X and Y locations of these points are stored, and used to calculate the length dl of the segment, as well as the normal vector and its components. The book gives $\pdi{\phi_i}{n} = n_i$ for i = 1, 2, 3 and $\pdi{\phi_i}{n} = (\vec{r'} \times \vec{n})_{i-3}$ for i = 4, 5, 6, so the normal component $n_6$ is calculated as $xn_2 - yn_1$ at each midpoint.\\
 
@@ -100,6 +100,12 @@ Case: square with sides 2
  [ 0.      0.      0.723 ]]
 Calculated in 4.918705 seconds
 \end{lstlisting}
+This corresponds well with the reference values found in the book. The following plot also shows that the numerical and exact solution is virtually indistinguishable from each other\\
+\begin{figure}[h!]
+\includegraphics[scale=0.6]{exact_vs_numerical.png}
+\end{figure}
+\\
+\newpage
 The wording of the assignment puzzled me a bit, as it asked for the added mass forces, as well as the cross-coupling added mass coeeficients. If I'm not fully mistaken, the cross-coupling coefficients for symmetric 2D bodies are all zero, as well as the coefficients $m_{33}, m_{44}$ and $m_{55}$.  The added mass force is defined as $F_j = -\dot{U}m_{ji}$, but we are not given a U, so i have assumed this to be of size unity. The added mass forces would then be as follows (for the cases listed above)\\
 \\
 For circle: $F_1 = -3.1405\tab F_2 = -3.1405$\\
