@@ -8,19 +8,21 @@ set_printoptions(precision=4, suppress=True)
 
 
 def ellipse(a,b):
-
+	print
+	if a == b:
+		print('Case: circle with radius %d' % a)
+	else:
+		print('Case: ellipse with a = %d, b = %d' % (a,b))
 	def calculate(i):
 		r1 = linalg.norm(array([x[:-1],y[:-1]]).T - array([midpointx[i],midpointy[i]]),axis=1)
 		r2 = linalg.norm(array([x[1:],y[1:]]).T - array([midpointx[i],midpointy[i]]),axis=1)
 		theta = -arccos((dl**2 - r2**2 - r1**2)/(-2*r2*r1))
 		rhs11 = sum(nx*(log(r1)+log(r2))*0.5*dl)
 		rhs22 = sum(ny*(log(r1)+log(r2))*0.5*dl)
-		rhs33 = sum(n3*(log(r1)+log(r2))*0.5*dl)
 		rhs66 = sum(n66*(log(r1)+log(r2))*0.5*dl)
 		A[i] = theta
 		B11[i] = rhs11
 		B22[i] = rhs22
-		B33[i] = rhs33
 		B66[i] = rhs66
 
 	start = time.time()
@@ -37,14 +39,11 @@ def ellipse(a,b):
 	nx = -(y[1:] - y[:-1])/dl
 	ny = (x[1:] - x[:-1])/dl
 	n3 = zeros_like(nx)
-	r = array([midpointx,midpointy]).T
-	n = array([nx, ny]).T
-	n66 = cross(r,n)
+	n66 = (midpointx*ny - midpointy*nx)
 
 	A = zeros((num_segments,num_segments))
 	B11 = zeros(num_segments)
 	B22 = zeros(num_segments)
-	B33 = zeros(num_segments)
 	B66 = zeros(num_segments)
 
 	for i in range(num_segments):
@@ -54,19 +53,16 @@ def ellipse(a,b):
 
 	phi11 = linalg.solve(A,B11)
 	phi22 = linalg.solve(A,B22)
-	phi33 = linalg.solve(A,B33)
 	phi66 = linalg.solve(A,B66)
 
 	m11 = sum(phi11*nx*dl)
 	m22 = sum(phi22*ny*dl)
-	m33 = sum(phi33*n3*dl)
 	m66 = sum(phi66*n66*dl)
 
-	M = zeros((6,6))
+	M = zeros((3,3))
 	M[0][0] = m11
 	M[1][1] = m22
-	M[2][2] = m33
-	M[5][5] = m66
+	M[2][2] = m66
 
 	print M
 
@@ -75,12 +71,16 @@ def ellipse(a,b):
 
 	if a == b:
 		exact = -(a**2*midpointx)/(midpointx**2 + midpointy**2)
-		plot(exact, 'b-')
-		plot(phi11, 'r-')
-		show()
+		plot(exact, 'b-', label='exact solution')
+		plot(phi11, 'r-', label='numerical solution')
+		xlabel('segment')
+		ylabel('phi')
+		legend(loc='upper right', numpoints = 1)
+		savefig('exact_vs_numerical.png')
 
 def rectangle(a):
-
+	print
+	print('Case: square with sides %d' %(2*a))
 	def calculate(i):
 		r1 = linalg.norm(array([x[:-1],y[:-1]]).T - array([midpointx[i],midpointy[i]]),axis=1)
 		r2 = linalg.norm(array([x[1:],y[1:]]).T - array([midpointx[i],midpointy[i]]),axis=1)
@@ -89,12 +89,10 @@ def rectangle(a):
 		theta[isnan(theta)] = 0
  		rhs11 = sum(nx*(log(r1)+log(r2))*0.5*dl)
 		rhs22 = sum(ny*(log(r1)+log(r2))*0.5*dl)
-		rhs33 = sum(n3*(log(r1)+log(r2))*0.5*dl)
 		rhs66 = sum(n66*(log(r1)+log(r2))*0.5*dl)
 		A[i] = theta
 		B11[i] = rhs11
 		B22[i] = rhs22
-		B33[i] = rhs33
 		B66[i] = rhs66
 
 	start = time.time()
@@ -129,7 +127,6 @@ def rectangle(a):
 	A = zeros((N,N))
 	B11 = zeros(N)
 	B22 = zeros(N)
-	B33 = zeros(N)
 	B66 = zeros(N)
 
 	for i in range(N):
@@ -137,19 +134,16 @@ def rectangle(a):
 
 	phi11 = linalg.solve(A,B11)
 	phi22 = linalg.solve(A,B22)
-	phi33 = linalg.solve(A,B33)
 	phi66 = linalg.solve(A,B66)
 
 	m11 = sum(phi11*nx*dl)
 	m22 = sum(phi22*ny*dl)
-	m33 = sum(phi33*n3*dl)
 	m66 = sum(phi66*n66*dl)
 
-	M = zeros((6,6))
+	M = zeros((3,3))
 	M[0][0] = m11
 	M[1][1] = m22
-	M[2][2] = m33
-	M[5][5] = m66
+	M[2][2] = m66
 
 	print M
 
